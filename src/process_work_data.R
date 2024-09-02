@@ -1,6 +1,6 @@
 
-#---- Script requires `work_data`, `data_Info`, `data_initInfo` objects
-# Functions `SurvSplit2_truncate`, `create_cch_weights` called
+#---- Script requires `work_data_init`, `data_Info`, `data_initInfo` objects
+# Script invokes  `SurvSplit2_truncate`, `create_cch_weights` Functions
 
 source("./R/zzz_Rfuns.R")    # R functions loaded
 
@@ -20,7 +20,7 @@ source("./R/zzz_Rfuns.R")    # R functions loaded
 message("=== Processing `work_data` ==== ")
 
  
-#---- Unpack df_Info and 
+#---- Unpack `prj_Info` and `df_Info` lists 
 #  path_Info, tvar_Info dfin_Info CCH_Info split_Info mod_Info 
 dtInfo <- data_Info
 
@@ -28,7 +28,11 @@ dtInfo_nms <-  names(dtInfo)
 for (nm in dtInfo_nms) assign(nm, dtInfo[[nm]], envir = .GlobalEnv)
 # print(dtInfo_nms)
 
+tvar_Info <- prj_Info$tvar_Info
+
 #---- extract auxiliary objects
+
+project_nm <- prj_Info$nick
 
 dfin_cfilter <- dfin_Info$cfilter
 dfin_time_horizon <- dfin_Info$time_horizon
@@ -52,6 +56,9 @@ message(paste0("---> ", txt0))
 dfs_initSplit <- split_Info$initSplit
 dfs_seed      <- split_Info$seed
 dfs_nfolds    <- split_Info$nfolds
+
+work_data <- work_data_init
+rm(work_data_init)
 
 #---- Step 1:  cfilter applied
 
@@ -103,12 +110,17 @@ if (length(dfs_seed) !=0) set.seed(dfs_seed) else set.seed(12435)
      work_data <- work_data %>% group_by(!!subcht_sym) %>%
        mutate(initSplit = ifelse(runif(n()) <  dfs_initSplit, 1, 0)) %>% ungroup()
        message("-- `initSplit` stratified by ", CCH_subcohort, " created: ", nrow(work_data), " x ",  ncol(work_data))
- } else {     # SRS
+    } else {     # SRS
      work_data <- work_data %>% 
        mutate(initSplit = ifelse(runif(nrow(work_data)) <  dfs_initSplit, 1, 0)) %>% ungroup()
        message("-- `initSplit` _NOT_ stratified by ", CCH_subcohort, " created: ")
- }
-} else message("-- `initSplit` already defined it was NOT created: ", nrow(work_data), " x ",  ncol(work_data))
+ } # ifelse unx =01 
+} #  exists("CCH_subcohort") and initSplit not defined
+ 
+  if (!exists("CCH_subcohort") && length(idx) == 0){
+       work_data <- work_data %>% 
+          mutate(initSplit = ifelse(runif(nrow(work_data)) <  dfs_initSplit, 1, 0)) 
+     } else message("-- `initSplit` already defined it was NOT created: ", nrow(work_data), " x ",  ncol(work_data))
 
 #---- Step 4 Create `foldid`
    message("===> Step 4: Create `foldid` variable: nfolds = ", dfs_nfolds) 
@@ -151,6 +163,7 @@ if (exists("CCH_n_total")){
  work_data <- create_cch_weights(work_data, CCH_subcohort, tv_tnms[2], CCH_n_total)
 } else {
  message("--- CCH_n_total not defined. CCH_weights are equal to 1")
+ CCH_subcohort <- NULL
  work_data <- create_cch_weights(work_data, CCH_subcohort, tv_tnms[2], 999)
 } 
 message("-- `work_data` (_after_ adding CCH weights): ", nrow(work_data), " x ",  ncol(work_data))

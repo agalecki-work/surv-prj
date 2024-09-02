@@ -1,5 +1,11 @@
 create_cch_weights <- function(datax, xsubcohort, xcase, n_total){
-   
+ if (is.null(xsubcohort)){
+    dt <- datax[, 1] # first column 
+    dt$CCH_Self <-1
+    dt$CCH_SelfPrentice <- 1
+    dt$CCH_BorganI <- 1
+    dt[,1] <- NULL 
+   }  else {
    dfx <- datax[, c(xsubcohort, xcase)]
    colnames(dfx) <- c("subcohort", "case")
    # print(colnames(dfx))
@@ -28,20 +34,17 @@ create_cch_weights <- function(datax, xsubcohort, xcase, n_total){
       subcohort == 1 & case == 1 ~ 1 + n_subcohort / n_non_cases_overall,
       subcohort == 0 & case == 1 ~ n_subcohort / n_non_cases_overall,
       TRUE ~ 0        # Cases that are not part of the subcohort have a calculated weight
-    ),
+      ),
     
     CCH_BorganI = case_when(
         subcohort == 1 ~ 1,
         subcohort == 0 & case == 1 ~ n_total / n_subcohort,
         TRUE ~ 0  # Non-cases outside of the subcohort typically not assigned weights
     )
-   )
+   )  # mutate
+     dt <- dt %>% select(-c(subcohort, case))
+  }  # ifelse is.null(xsubcohort)
     
-  if (ttx != "01"){  # no subcohort
-   dt$CCH_Self <-1
-   dt$CCH_SelfPrentice <- 1
-   dt$CCH_BorganI <- 1
-  }
-  dt <- dt %>% select(-c(subcohort, case))
-  return(cbind(datax, dt))
- } # create_cch_weights 
+  
+   return(cbind(datax, dt))
+} # end function

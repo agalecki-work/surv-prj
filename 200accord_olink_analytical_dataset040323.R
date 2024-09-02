@@ -16,16 +16,9 @@ message("==>===> `olink_analytical_dataset040323` data: ",
                  nrow(olink_analytical_dataset040323), " x ", ncol(olink_analytical_dataset040323)) 
 
 accord <- olink_analytical_dataset040323 %>% filter(YRS_PRIMARY > 0)
+
 message("==>===> `accord` data: ", nrow(accord), " x ", ncol(accord)) 
 
-path_Info <- list(
-   cdir             = current_folder,
-   script_name      = "200accord_olink_analytical_dataset040323",  # R script (this file) 
-   dfin_base        = datain_basename,                             # External file with dataset (without extension)
-   dfin_ext         = datain_extension,                            
-   dfnms_all        = "accord",                                    # Data frame names created by this script
-   out_prefix       = "061accord040323"                            # used in 061* script
-)
 
 
 #--- Derive variables
@@ -56,36 +49,42 @@ accord <- accord %>%
 
 #--- `tvar?` lists (one list will be selected
 tvar1 <- list(
+    dv_nick = "1ESKD_1",  
     tnms  = c("YRS_PRIMARY", "PRIMARY"),  #  Pair of variables used to create Surv objects for Cox model
     tlabels = c("Time to primary outcome or censoring (years)", "Primary outcome (ESKD/Dialysis, 0=NO, 1=YES)"),
     slevels = 0:1,                         # event status variable values
     slabels = c("0-censored", "1-ESKD/Dialysis"))
 
 tvar2 <- list(
+    dv_nick = "2ESKD40_1",
     tnms  = c("YRS_CASE40_JUN", "CASE40_JUNE"),  #  Pair of variables used to create Surv objects for Cox model
     tlabels = c("Time to secondary outcome (yrs)", "Secondary outcome (ESKD/Dialysis/eGFR)"),
     slevels = 0:1,                         # event status variable values
     slabels = c("0-censored", "1-ESKD/Dialysis/eGFR"))
     
 tvar3 <- list(
+    dv_nick = "3EGFR40_1",
     tnms  = c("YRS_DECLINE40_PLUS", "DECLINE40_PLUS"),  #  Pair of variables used to create Surv objects for Cox model
     tlabels = c("Time to 40pct eGFR decline event or cens. (yrs)", "40pct eGFR decline"),
     slevels = 0:1,                         # event status variable values
     slabels = c("0-censored", "1: 40pct eGFR decline"))
     
 tvar4 <- list(
+    dv_nick = "4Death_1",
     tnms  = c("FU_TM_ACCORDION", "TM_ACCORDION"),  #  Pair of variables used to create Surv objects for Cox model
     tlabels = c("Time to death from any cause (years)", "Death from any cause"),
     slevels = 0:1,                         # event status variable values
     slabels = c("0-censored", "1-Death from any cause"))
 
 tvar5 <- list(
+    dv_nick = "5ESKD_2",  
     tnms  = c("YRS_PRIMARY", "STATUS_PRI"),  #  Pair of variables used to create Surv objects for competing risk model
     tlabels = c("Time to primary outcome (ESKD/Dialysis (years)", "Status for primary outcome"),
     slevels = 0:2,                         # event status variable values
     slabels = c("0-censored", "1-Primary event", "2-Death before primary outcome"))
 
 tvar6 <- list(
+    dv_nick = "2ESKD40_2",
     tnms  = c("YRS_CASE40_JUN", "STATUS_SEC"),  #  Pair of variables used to create Surv objects for competing risk model
     tlabels = c("Time to secondary outcome (yrs)", "Status for secondary outcome"),
     slevels = 0:2,                         # event status variable values
@@ -93,6 +92,19 @@ tvar6 <- list(
    
 #   Select one tvar list !!!
 tvar_Info <- tvar2 # 
+
+
+#---- Mandatory list
+prj_Info <- list(
+   nick             = "acc",                                       # Project nickname
+   cdir             = current_folder,
+   script_name      = "200accord_olink_analytical_dataset040323",  # R script (this file) 
+   dfin_base        = datain_basename,                             # External file with dataset (without extension)
+   dfin_ext         = datain_extension,                            
+   dfnms_all        = "accord",                                    # Data frame names created by this script
+   tvar_Info        = tvar_Info                                   # dv_nick, tnms, tlabels, slevels, slabels
+)
+
 
 
 
@@ -110,7 +122,7 @@ dfvars_in   <- unique(c("MASKID", tvar_Info$tnms, keep_cxvars))
 
 # `work_data  
 dfin_Info <- list(
-  name     ="accord",
+  ####### name     ="accord",
   varsin   = dfvars_in,
   cfilter  = character(0),                        # Filter expression (by default all observations included) 
   cfilter_comment  = "All data used",
@@ -118,8 +130,8 @@ dfin_Info <- list(
 )
 
 
-work_data <- accord %>% select(all_of(dfvars_in)) %>% filter(MASKID != 106172) 
-message("-- `work_data` (selected vars): ", nrow(work_data), " x ",  ncol(work_data))
+work_data_init <- accord %>% select(all_of(dfvars_in)) %>% filter(MASKID != 106172) 
+message("-- `work_data_init` (selected rows/vars): ", nrow(work_data_init), " x ",  ncol(work_data_init))
 
 #-- `CCH_info` list for CCH data
 CCH_Info <- list(
@@ -137,11 +149,11 @@ split_Info <- list(
    nfolds           = 10
 )
 
+
+
 # Mandatory list `Data_initInfo`
 data_initInfo <- list(
-   path_Info        = path_Info,              # name, varsin, cfilter, cfilter_comment, time_horizon 
-   tvar_Info        = tvar_Info,              # tnms, tlabels, slevels, slabels
-   dfin_Info        = dfin_Info,
+   dfin_Info        = dfin_Info,              # name, varsin, cfilter, cfilter_comment, time_horizon
    CCH_Info         = CCH_Info,               # subcohort, weight, n_total
    split_Info       = split_Info              # seed, initSplit, nfolds
  
@@ -163,9 +175,9 @@ data_initInfo <- list(
 #>   0    528 116    0 Depending on CCH_tvars exclude n=528 or 528 + 151 subjects
 #>   1    151  64    0 n=215 cases outside of subcohort
 
+message("===> Project `", prj_Info$nick, "`.  DV nick = `", tvar_Info$dv_nick, "`")
 
-
-keep_objects <- c("accord", "data_initInfo", "work_data") # Objects mandatory to keep `df_initInfo`, `dfCCH_initInfo`
+keep_objects <- c("accord", "prj_Info", "data_initInfo", "work_data_init") # Objects mandatory to keep
 
 # print(df_initInfo)
 
