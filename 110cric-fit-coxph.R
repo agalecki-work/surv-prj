@@ -99,7 +99,12 @@ keep0_objects <- if (ntvarsx  == 2) {
 
 #print(keep0_objects)
 
-keep_objects <- c(keep0_objects , "descript",  "data_Info", "work_data", "coxph_Info","cox0_FITs", "cox0_FITs_glance")
+keep_objects <- c(keep0_objects , "descript",  "data_Info", "coxph_Info", "cox0_FITs", "cox0_FITs_glance")
+
+
+Rdata_nm <- paste0("./out/", project_name, "/", DV_name, "-coxph.Rdata") 
+save(list = keep_objects, file=Rdata_nm)
+
 
 # print(df_initInfo)
 

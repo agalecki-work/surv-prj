@@ -24,7 +24,7 @@ message("==>===> `cric_imputed` data: ", nrow(cric_imputed), " x ", ncol(cric_im
 
 
 tvar1 <- list(
-    dv_nick = "1ESKD_2",
+    dv_nick = "1ESKD",
     tnms     = c("TIME_ESRD", "ESRD"),  #  Variables' names used to create Surv objects
     tlabels  =  c("Time to primary outcome or censoring (years)", "Primary outcome (ESKD/Dialysis, 0=NO, 1=YES)"),
     slevels = 0:1,                         # event status variable values
@@ -40,7 +40,7 @@ tvar_Info <- tvar1 #
 
 #---- Mandatory list
 prj_Info <- list(
-   nick             = "cric",
+   nick             = "1cric",
    cdir             = current_folder,
    script_name      = "cric_olinknpx_112023_v1_imputed0",          # R script (this file) 
    dfin_base        = datain_basename,                             # External file with input dataset (without extension)

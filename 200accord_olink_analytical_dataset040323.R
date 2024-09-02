@@ -49,54 +49,54 @@ accord <- accord %>%
 
 #--- `tvar?` lists (one list will be selected
 tvar1 <- list(
-    dv_nick = "1ESKD_1",  
+    dv_nick = "1ESKD",  
     tnms  = c("YRS_PRIMARY", "PRIMARY"),  #  Pair of variables used to create Surv objects for Cox model
     tlabels = c("Time to primary outcome or censoring (years)", "Primary outcome (ESKD/Dialysis, 0=NO, 1=YES)"),
     slevels = 0:1,                         # event status variable values
     slabels = c("0-censored", "1-ESKD/Dialysis"))
 
 tvar2 <- list(
-    dv_nick = "2ESKD40_1",
+    dv_nick = "2ESKD40",
     tnms  = c("YRS_CASE40_JUN", "CASE40_JUNE"),  #  Pair of variables used to create Surv objects for Cox model
     tlabels = c("Time to secondary outcome (yrs)", "Secondary outcome (ESKD/Dialysis/eGFR)"),
     slevels = 0:1,                         # event status variable values
     slabels = c("0-censored", "1-ESKD/Dialysis/eGFR"))
     
 tvar3 <- list(
-    dv_nick = "3EGFR40_1",
+    dv_nick = "3EGFR40",
     tnms  = c("YRS_DECLINE40_PLUS", "DECLINE40_PLUS"),  #  Pair of variables used to create Surv objects for Cox model
     tlabels = c("Time to 40pct eGFR decline event or cens. (yrs)", "40pct eGFR decline"),
     slevels = 0:1,                         # event status variable values
     slabels = c("0-censored", "1: 40pct eGFR decline"))
     
 tvar4 <- list(
-    dv_nick = "4Death_1",
+    dv_nick = "4Death",
     tnms  = c("FU_TM_ACCORDION", "TM_ACCORDION"),  #  Pair of variables used to create Surv objects for Cox model
     tlabels = c("Time to death from any cause (years)", "Death from any cause"),
     slevels = 0:1,                         # event status variable values
     slabels = c("0-censored", "1-Death from any cause"))
 
 tvar5 <- list(
-    dv_nick = "5ESKD_2",  
+    dv_nick = "5ESKD_cr",  
     tnms  = c("YRS_PRIMARY", "STATUS_PRI"),  #  Pair of variables used to create Surv objects for competing risk model
     tlabels = c("Time to primary outcome (ESKD/Dialysis (years)", "Status for primary outcome"),
     slevels = 0:2,                         # event status variable values
     slabels = c("0-censored", "1-Primary event", "2-Death before primary outcome"))
 
 tvar6 <- list(
-    dv_nick = "2ESKD40_2",
+    dv_nick = "2ESKD40_cr",
     tnms  = c("YRS_CASE40_JUN", "STATUS_SEC"),  #  Pair of variables used to create Surv objects for competing risk model
     tlabels = c("Time to secondary outcome (yrs)", "Status for secondary outcome"),
     slevels = 0:2,                         # event status variable values
     slabels = c("0-censored", "1-Secondary event", "2-Death before secondary outcome"))
    
 #   Select one tvar list !!!
-tvar_Info <- tvar2 # 
+tvar_Info <- tvar5 # 
 
 
 #---- Mandatory list
 prj_Info <- list(
-   nick             = "acc",                                       # Project nickname
+   nick             = "2accord",                                       # Project nickname
    cdir             = current_folder,
    script_name      = "200accord_olink_analytical_dataset040323",  # R script (this file) 
    dfin_base        = datain_basename,                             # External file with dataset (without extension)

@@ -7,7 +7,7 @@ rm(list= ls())
 source("201accord-update-data_Info.R") 
 #print(data_Info)
 source("./R/zzz_Rfuns.R")    # R functions loaded
-message("====> 210*.R  STARTS")
+message("====> ?10*.R  STARTS")
 
 require(splines)
 
@@ -64,6 +64,11 @@ message("-- Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")
 
+srcf <- "./src/14-create_fgdata.R"
+message("-- Source ` ", srcf, "`: Starts")
+source(srcf) 
+message("-- Source ` ", srcf ,"`: Ended")
+
 
 #==== source
 srcf <- "./src/15-create_coxph0_fit.R"
@@ -79,7 +84,6 @@ message("-- Source ` ", srcf ,"`: Ended")
 #cox0_zphs <- lapply(cox0_xfits, FUN= function(fitx) cox.zph(fitx))
 #names(cox0_zphs) <-  cpatt_nms
 #print(cox0_zphs)
-
 
 #==== source
 
@@ -100,14 +104,18 @@ keep0_objects <- if (ntvarsx  == 2) {
 
 #print(keep0_objects)
 
-keep_objects <- c(keep0_objects , "descript",  "data_Info", "work_data", "coxph_Info","cox0_FITs", "cox0_FITs_glance")
+keep_objects <- c(keep0_objects ,  "data_Info","prj_Info", "coxph_Info","cox0_FITs", "cox0_FITs_glance")
+
+
+Rdata_nm <- paste0("./out/", project_name, "/", DV_name, "-coxph.Rdata") 
+save(list = keep_objects, file=Rdata_nm)
 
 # print(df_initInfo)
 
 # Cleanup (No changes below) 
 ls_objects <- ls()
 rm_objects  <- c(setdiff(ls_objects, keep_objects), "ls_objects")
-rm(list = rm_objects)
+# rm(list = rm_objects)
 rm(rm_objects)
 
 
