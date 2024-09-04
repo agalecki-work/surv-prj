@@ -1,6 +1,4 @@
 # source("210accord-fit-coxph.R") # This file
-
-
 library(tidymodels)
 
 rm(list= ls())
@@ -33,56 +31,48 @@ ns_df3 <- sapply(nsdf3_vars, FUN= function(cx){
 })  # matrix with spline knots for selected vars,  df=3. Colnames correspond to var names
 
 
-#---- Create `cxterms_mtx1` and 
+#---- Create `cxterms_mtx`
 cxterms_pattern1 <- paste("BM", 1:21, sep = "")
 #                           ns(BM1         , knots = ns_df3[,'BM1'])
 cxterms_pattern2 <- paste( "ns(BM", 1:21, ", knots = ns_df3[,'BM", 1:21, "'])", sep ="" )
 cxterms_pattern <- cbind(cxterms_pattern1, cxterms_pattern2) 
 
 cxterms_common  <- c("AGE") # , "ns(AGE         , knots = ns_df3[,'AGE'])", "BASE_UACR")
-cxterms_mtx1   <- create_cxterms_mtx(cxterms_pattern1, cxterms_common)  #  No tt() terms
-cxterms_mtx1[1,2] <- "" 
-cxterms_mtx2  <- NULL # NULL for models without tt interactions
-cxterms_mtx2 <- rep(c("AGE"), 21)
+cxterms_mtx <- create_cxterms_mtx(cxterms_pattern1, cxterms_common) 
+print(head(cxterms_mtx))
 
 
 message("====> coxph_Info ")
 coxph_Info <- list(
   wght           = "CCH_Self",       # ... CCH_Self,  CCH_SelfPrentice, CCH_BorganI
   id             = "MASKID",
-  cxterms_mtx1   = cxterms_mtx1,
-  cxterms_mtx2   = rep(c("AGE"), 21),
+  cxterms_mtx    = cxterms_mtx,
+  cxterms_mtx_tt = c(2), # select columns in `cxterms_mtx`. Possibly NULL
   tt_split_length  = 0.1          # 0.1, 0.01 Length of tt_split_interval used to create expanded data
 )
-
-
-rm(cxterms_mtx1,cxterms_mtx2,  cxterms_pattern, cxterms_common) 
+rm(cxterms_mtx, cxterms_pattern, cxterms_common) 
 
 #==== source
 srcf <- "./src/11-unpack-data_Info.R"
-message("====> Source ` ", srcf, "`: Starts")
+message("-- Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")
 
 
 srcf <- "./src/12-unpack-coxph_Info.R"
-message("=====> Source ` ", srcf, "`: Starts")
+message("-- Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")
-print(mod_tt_split_length)
-
-print(head(mod_cxterms_mtx2))
-
 
 srcf <- "./src/14-create_fgdata.R"
-message("=====> Source ` ", srcf, "`: Starts")
+message("-- Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")
 
 
 #==== source
-srcf <- "./src/15-fit_coxph0.R"
-message("====> Source ` ", srcf, "`: Starts")
+srcf <- "./src/15-create_coxph0_fit.R"
+message("-- Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")
 
@@ -125,7 +115,7 @@ save(list = keep_objects, file=Rdata_nm)
 # Cleanup (No changes below) 
 ls_objects <- ls()
 rm_objects  <- c(setdiff(ls_objects, keep_objects), "ls_objects")
-rm(list = rm_objects)
+# rm(list = rm_objects)
 rm(rm_objects)
 
 

@@ -2,30 +2,31 @@
 message("===> Step Model _without_ tt() interaction terms ")
 
 # multiple coxph using `train_data` or `train_fgdata wout tt vars
+
  cox0_FITs <- lapply(1:nrow(mod_cxterms_mtx), FUN = function(i) {
-    cxterms        <- mod_cxterms_mtx[i,] # `cxterms` for  model wout tt vars
+    cxterms0       <- mod_cxterms_mtx[i,] # `cxterms`
+    cxterms        <- cxterms0[which(cxterms0 != "")]    # Skip blank strings
     cxterms_plus   <- paste(cxterms, collapse ="+" )
     cxform         <- paste("~ 0 +", cxterms_plus)       # '~0 +x1+x2'
-      if (ntvarsx == 2){
+      if (ntvarsx == 2 ){     # `coxph()` applied to `train_data`: Standard Cox without tt variables
             csrv      <-     paste0("Surv(", tv_tnms[1], ',', tv_tnms[2],")")    # 'Surv(time, status)'
             csrvexpr  <-     parse(text=csrv)
-            wght      <-     if (length(mod_wght)> 0) substitute(train_data[[mod_wght]]) else NULL
             cxform_srv <- paste0(csrv, "~0 + ", cxterms_plus)     
             cox0_args <- list(data   = substitute(train_data), 
 	                     formula = as.formula(cxform_srv)
                      )
             
-         } else {     #  ntvarsx > 2                           
+         } else {     #  ntvarsx > 2  # coxph applied to `train_fgdata`: Emulates competing risks without tt vars                          
             csrv      <-     paste0("Surv(fgstart, fgstop, fgstatus)")  # 'Surv(fgstart, fgstop, fgstatus)'
-            train_df  <-     train_fgdata
             csrvexpr  <-     expression(Surv(fgstart, fgstop, fgstatus))
-            wght      <-     if (length(mod_wght)> 0) train_fgdata[[mod_wght]] else NULL
-            idx       <-     if (length(mod_id)> 0)   train_fgdata[[mod_id]] else NULL
-            cxform_srv <- paste0(csrv, "~0 + ", cxterms_plus)     
-            cox0_args  <- list(data   = substitute(train_fgdata), 
+            cxform_srv <-    paste0(csrv, "~0 + ", cxterms_plus)     
+            cox0_args  <-    list(data   = substitute(train_fgdata), 
                                formula = as.formula(cxform_srv)
                         ) 
        }  #  ifelse ntvarsx
+   
+       
+       
        
         # `cox0_args$id` created 
            if (length(mod_id)> 0){
