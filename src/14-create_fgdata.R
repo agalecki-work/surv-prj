@@ -20,7 +20,7 @@
       } # !is.null(val_data))
  
  ## ntvarsx  >= 3 `train_fgdata` and `val_fgdata` will be split (over-written)
-    if (!is.null(mod_cxterms_mtx2)) {  ## tt vars in the model
+    if (mod_tt_data ) {  ## tt split in the data
       cut_points <- seq(0, max(train_fgdata$fgstop), by = mod_tt_split_length)  # Define 'some_interval' appropriately
       train_fgdata <- survSplit(Surv(fgstart, fgstop, fgstatus) ~ ., 
                               data = train_fgdata,                     
@@ -37,7 +37,7 @@
            message("--- `val_fgdata` expanded using SurvSplit ", nrow(val_fgdata), "x", ncol(val_fgdata))     
        
         } # !is.null(val_data)) 
-    } # !is.null(mod_cxterms_mtx2)
+    } # mod_tt_data 
  
  } else { 
     message ("====> Datasets `train_fgdata` and ` val_fgdata _NOT_ created: ntvarsx<3  ... OK")
@@ -48,7 +48,7 @@
 #         train_fgdata
 # Output: Expanded Datasets with the same name
 
-if (!is.null(mod_cxterms_mtx2) && ntvarsx == 2) {          # Split train_data for models with tt vars
+if (mod_tt_data  && ntvarsx == 2) {          # Split train_data for models with tt vars
   message("(Expanded) Data for models with tt terms")
   message("Split data for models with tt vars")  
   csrvx      <- paste0("Surv(", tv_tnms[1], ',', tv_tnms[2],") ~.")    # 'Surv(time, status)'
@@ -56,6 +56,6 @@ if (!is.null(mod_cxterms_mtx2) && ntvarsx == 2) {          # Split train_data fo
   train_data <- survSplit(as.formula(esrvx), 
                             data = train_data,                     
                             cut = cut_points)
-}  # !is.null(mod_cxterms_mtx2)...  Cox Model wout tt vars
+}  # mod_tt_data ...   Data with tt vars
 
 

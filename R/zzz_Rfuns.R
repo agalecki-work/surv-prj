@@ -9,8 +9,7 @@ funNms <- c(
   "create_cch_weights",
   "create_spline_basis",
   "expand_data_finegray",
-  "split_data_intervals",
-  "create_time_dependent_covariates2"
+  "split_data_intervals"
 )
 
 funNmsR  <- paste0(funNms,".R") 

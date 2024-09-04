@@ -1,17 +1,28 @@
 # source("210accord-fit-coxph.R") # This file
 
 
-library(tidymodels)
+require(tidymodels)
+require(stringr)
+require(glue)
+require(splines)
 
 rm(list= ls())
 
 #--- Create mandatory `df_initInfo` list and `work_data' dataframe
-source("201accord-update-data_Info.R") 
-#print(data_Info)
-source("./R/zzz_Rfuns.R")    # R functions loaded
-message("====> ?10*.R  STARTS")
+srcf <- "201accord-update-data_Info.R"
+message("====>********* Source ` ", srcf, "`: Starts")
+source(srcf) 
+print(ls())
 
-require(splines)
+
+#print(data_Info)
+srcf <- "./R/zzz_Rfuns.R"
+message("====> Source ` ", srcf, "`: Starts")
+source(srcf) 
+message("-- Source ` ", srcf ,"`: Ended")
+
+message("======>  210accord-fit-coxph.R  Starts" ) # This file
+
 
 
 # Auxiliary objects created for later use
@@ -32,31 +43,44 @@ ns_df3 <- sapply(nsdf3_vars, FUN= function(cx){
   attr(splinex, "knots")
 })  # matrix with spline knots for selected vars,  df=3. Colnames correspond to var names
 
+#---- Create `cxterms_mtx`
+#
 
-#---- Create `cxterms_mtx1` and 
-cxterms_pattern1 <- paste("BM", 1:21, sep = "")
-#                           ns(BM1         , knots = ns_df3[,'BM1'])
-cxterms_pattern2 <- paste( "ns(BM", 1:21, ", knots = ns_df3[,'BM", 1:21, "'])", sep ="" )
-cxterms_pattern <- cbind(cxterms_pattern1, cxterms_pattern2) 
+nx <- 21   # Number of coxph models in `cxterms_mtx`
 
-cxterms_common  <- c("AGE") # , "ns(AGE         , knots = ns_df3[,'AGE'])", "BASE_UACR")
-cxterms_mtx1   <- create_cxterms_mtx(cxterms_pattern1, cxterms_common)  #  No tt() terms
-cxterms_mtx1[1,2] <- "" 
-cxterms_mtx2  <- NULL # NULL for models without tt interactions
-cxterms_mtx2 <- rep(c("AGE"), 21)
+nb <- 21   # Number of biomarkers
+
+model_nr <- tibble(nb = 1:nb)
+
+common_cxterms <- c(AGE      = "AGE", 
+                   AGE_ns3  = "ns(AGE , knots = ns_df3[,'AGE'])",
+                   BASE_UCR = "BASE_UACR"
+                   )
+common_cxterms_mtx <- matrix(rep(common_cxterms, times =nx), nrow=nx, byrow = TRUE)              
+colnames(common_cxterms_mtx) <- names(common_cxterms)
+rownames(common_cxterms_mtx) <- paste("M", 1:nx, sep="")
+common_cxterms_mtx[1, "AGE"] <- ""
+print(head(common_cxterms_mtx))  
+# 
+
+# Vector with sequence of cterms:   ----ns(BM#   , knots = ns_df3[,'BM#'])
+seq_BMns3 <- model_nr %>% str_glue_data("ns(BM{nb}, knots = ns_df3[,'BM{nb}'])")
+  
+cxterms_mtx <- cbind(common_cxterms_mtx, seq_BMns3) 
+
+
+
+# cxterms_mtx2 <- rep(c("BM1:{tt}"), 21)
 
 
 message("====> coxph_Info ")
 coxph_Info <- list(
   wght           = "CCH_Self",       # ... CCH_Self,  CCH_SelfPrentice, CCH_BorganI
   id             = "MASKID",
-  cxterms_mtx1   = cxterms_mtx1,
-  cxterms_mtx2   = rep(c("AGE"), 21),
-  tt_split_length  = 0.1          # 0.1, 0.01 Length of tt_split_interval used to create expanded data
+  cxterms_mtx    = cxterms_mtx,
+  tt_data        = FALSE,         # Time 
+  tt_split_length  = 0.1          # 0.1, 0.01 Length of tt_split_interval used to create tt expanded data
 )
-
-
-rm(cxterms_mtx1,cxterms_mtx2,  cxterms_pattern, cxterms_common) 
 
 #==== source
 srcf <- "./src/11-unpack-data_Info.R"
@@ -71,7 +95,7 @@ source(srcf)
 message("-- Source ` ", srcf ,"`: Ended")
 print(mod_tt_split_length)
 
-print(head(mod_cxterms_mtx2))
+print(head(mod_cxterms_mtx))
 
 
 srcf <- "./src/14-create_fgdata.R"
