@@ -1,56 +1,51 @@
-# source("210accord-fit-coxph.R") # This file
-library(tidymodels)
+# source("250accord-fit-coxnet.R") # This file
+
+
+require(tidymodels)
+require(stringr)
+require(glue)
+require(splines)
 
 rm(list= ls())
 
 #--- Create mandatory `df_initInfo` list and `work_data' dataframe
-source("201accord-update-data_Info.R") 
+srcf <- "201accord-update-data_Info.R"
+message("====>********* Source ` ", srcf, "`: Starts")
+source(srcf) 
+print(ls())
+
+
 #print(data_Info)
-source("./R/zzz_Rfuns.R")    # R functions loaded
-message("====> ?10*.R  STARTS")
+srcf <- "./R/zzz_Rfuns.R"
+message("====> Source ` ", srcf, "`: Starts")
+source(srcf) 
+message("-- Source ` ", srcf ,"`: Ended")
 
-require(splines)
-
-
-# Auxiliary objects created for later use
-
-train_data <- work_data %>% filter(initSplit == 1)
-message("======> `train_data` : ", nrow(train_data), "x" , ncol(train_data))
-
-val_data <- work_data %>% filter(initSplit == 0)
-message("======> `val_data` : ", nrow(val_data), "x" ,ncol(val_data))
+message("======>  210accord-fit-coxph.R  Starts" ) # This file
 
 
-BM_vars <- paste("BM", 1:21, sep = "")
-xvars    <- c("AGE")
-nsdf3_vars <- c(BM_vars, xvars) # Splines withh df=3 will be generated for these variables
-
-ns_df3 <- sapply(nsdf3_vars, FUN= function(cx){
-  splinex <- ns(train_data[, cx],df=3) 
-  attr(splinex, "knots")
-})  # matrix with spline knots for selected vars,  df=3. Colnames correspond to var names
+srcf <- "205-create-aux-objects.R"
+message("====> Source ` ", srcf, "`: Starts")
+source(srcf) 
+message("-- Source ` ", srcf ,"`: Ends")
 
 
-#---- Create `cxterms_mtx`
-cxterms_pattern1 <- paste("BM", 1:21, sep = "")
-#                           ns(BM1         , knots = ns_df3[,'BM1'])
-cxterms_pattern2 <- paste( "ns(BM", 1:21, ", knots = ns_df3[,'BM", 1:21, "'])", sep ="" )
-cxterms_pattern <- cbind(cxterms_pattern1, cxterms_pattern2) 
+srcf <- "207-create-cxterms.R"
+message("====> Source ` ", srcf, "`: Starts")
+source(srcf) 
+message("-- Source ` ", srcf ,"`: Ends")
 
-cxterms_common  <- c("AGE") # , "ns(AGE         , knots = ns_df3[,'AGE'])", "BASE_UACR")
-cxterms_mtx <- create_cxterms_mtx(cxterms_pattern1, cxterms_common) 
-print(head(cxterms_mtx))
-
-
-message("====> coxph_Info ")
-coxph_Info <- list(
+message("----> coxnet_Info ")
+coxnet_Info <- list(
   wght           = "CCH_Self",       # ... CCH_Self,  CCH_SelfPrentice, CCH_BorganI
   id             = "MASKID",
-  cxterms_mtx    = cxterms_mtx,
-  cxterms_mtx_tt = c(2), # select columns in `cxterms_mtx`. Possibly NULL
-  tt_split_length  = 0.1          # 0.1, 0.01 Length of tt_split_interval used to create expanded data
+  cxterms        = cxterms,          # Matrixor vector with cxterms
+  skip_tt        = TRUE,             # Time split into small intervals
+  pen_xterms     = rep(1, times= ncol(cxterms)),
+  alpha          = 1,  
+  tt_split_length  = 0.1             # 0.1, 0.01 Length of tt_split_interval used to create tt expanded data
 )
-rm(cxterms_mtx, cxterms_pattern, cxterms_common) 
+
 
 #==== source
 srcf <- "./src/11-unpack-data_Info.R"
@@ -59,10 +54,16 @@ source(srcf)
 message("-- Source ` ", srcf ,"`: Ended")
 
 
-srcf <- "./src/12-unpack-coxph_Info.R"
+srcf <- "./src/12-unpack-coxnet_Info.R"
 message("-- Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")
+
+
+srcf <- "./src/13-process-cxterms.R"
+message("=====> Source ` ", srcf, "`: Starts")
+source(srcf) 
+message("-- Source ` ", srcf ,"`: Ends")
 
 srcf <- "./src/14-create_fgdata.R"
 message("-- Source ` ", srcf, "`: Starts")
@@ -71,7 +72,7 @@ message("-- Source ` ", srcf ,"`: Ended")
 
 
 #==== source
-srcf <- "./src/15-create_coxph0_fit.R"
+srcf <- "./src/15-create_coxnet0_fit.R"
 message("-- Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")

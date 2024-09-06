@@ -1,4 +1,4 @@
-# source("210accord-fit-coxph.R") # This file
+# source("220accord-fit-coxph.R") # This file
 
 
 require(tidymodels)
@@ -21,62 +21,19 @@ message("====> Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")
 
-message("======>  210accord-fit-coxph.R  Starts" ) # This file
+message("======>  220accord-fit-coxph.R  Starts" ) # This file
 
 
-
-# Auxiliary objects created for later use
-
-train_data <- work_data %>% filter(initSplit == 1)
-message("--- `train_data` : ", nrow(train_data), "x" , ncol(train_data))
-
-val_data <- work_data %>% filter(initSplit == 0)
-message("--- `val_data` : ", nrow(val_data), "x" ,ncol(val_data))
+srcf <- "205-create-aux-objects.R"
+message("====> Source ` ", srcf, "`: Starts")
+source(srcf) 
+message("-- Source ` ", srcf ,"`: Ends")
 
 
-BM_vars <- paste("BM", 1:21, sep = "")
-xvars    <- c("AGE")
-nsdf3_vars <- c(BM_vars, xvars) # Splines withh df=3 will be generated for these variables
-
-ns_df3 <- sapply(nsdf3_vars, FUN= function(cx){
-  splinex <- ns(train_data[, cx],df=3) 
-  attr(splinex, "knots")
-})  # matrix with spline knots for selected vars,  df=3. Colnames correspond to var names
-
-#---- Create `cxterms` character vector/mtx 
-#
-
-nx <- 21   # Number of coxph models in `cxterms_mtx`
-
-nb <- 21   # Number of biomarkers
-
-model_nr <- tibble(nb = 1:nb)
-
-common_cxterms <- c(
-    #               AGE      = "AGE", 
-                   AGE_ns3  = "ns(AGE , knots = ns_df3[,'AGE'])",
-                   BASE_UCR = "BASE_UACR",
-                   AGE_tt  = "AGE:{tt}"
-                   # strtm   = "strata(strtm)",
-                   # offset  = "offset(AGE/10)"
-                   )
-common_cxterms_mtx <- matrix(rep(common_cxterms, times =nx), nrow=nx, byrow = TRUE)              
-colnames(common_cxterms_mtx) <- names(common_cxterms)
-rownames(common_cxterms_mtx) <- paste("M", 1:nx, sep="")
-
-
-## print(head(common_cxterms_mtx))  
-# 
-
-# Vector with sequence of cterms:   ----ns(BM#   , knots = ns_df3[,'BM#'])
-seq_BMns3 <- model_nr %>% str_glue_data("ns(BM{nb}, knots = ns_df3[,'BM{nb}'])")
-message("---- Initial version of `cxterms` matrix/vector defined by the user")
-
-cxterms <- cbind(common_cxterms_mtx, seq_BMns3) 
-
-print(head(cxterms))
-
-
+srcf <- "207-create-cxterms.R"
+message("====> Source ` ", srcf, "`: Starts")
+source(srcf) 
+message("-- Source ` ", srcf ,"`: Ends")
 
 
 message("----> coxph_Info ")
@@ -90,33 +47,41 @@ coxph_Info <- list(
 
 print(coxph_Info)
 
+
 #==== source
 srcf <- "./src/11-unpack-data_Info.R"
 message("====> Source ` ", srcf, "`: Starts")
 source(srcf) 
-message("-- Source ` ", srcf ,"`: Ended")
+message("-- Source ` ", srcf ,"`: Ends")
 
 
 srcf <- "./src/12-unpack-coxph_Info.R"
 message("=====> Source ` ", srcf, "`: Starts")
 source(srcf) 
-message("-- Source ` ", srcf ,"`: Ended")
+message("-- Source ` ", srcf ,"`: Ends")
 #print(mod_tt_split_length)
 
 #print(head(mod_cxterms_mtx))
+
+srcf <- "./src/13-process-cxterms.R"
+message("=====> Source ` ", srcf, "`: Starts")
+source(srcf) 
+message("-- Source ` ", srcf ,"`: Ends")
+
 
 
 srcf <- "./src/14-create_fgdata.R"
 message("=====> Source ` ", srcf, "`: Starts")
 source(srcf) 
-message("-- Source ` ", srcf ,"`: Ended")
+message("-- Source ` ", srcf ,"`: Ends")
 
 
 #==== source
 srcf <- "./src/15-fit_coxph0.R"
 message("====> Source ` ", srcf, "`: Starts")
 source(srcf) 
-message("-- Source ` ", srcf ,"`: Ended")
+message("-- Source ` ", srcf ,"`: Ends")
+# if (TRUE) stop("xyz")
 
 
 #Select one fit
