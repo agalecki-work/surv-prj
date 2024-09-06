@@ -26,6 +26,7 @@
                               data = train_fgdata,                     
                               cut = cut_points,
                               episode = "interval")
+      train_fgdata <- train_fgdata %>% mutate(fgtime_tt = (fgstart + fgstop)/2) 
       message("--- `train_fgdata` expanded using SurvSplit ", nrow(train_fgdata), "x", ncol(train_fgdata))     
    
         if (!is.null(val_fgdata)){
@@ -34,6 +35,8 @@
                               data = val_fgdata,                     
                               cut = cut_points,
                               episode = "interval")
+          va_fgdata <- val_fgdata %>% mutate(fgtime_tt = (fgstart + fgstop)/2) 
+     
            message("--- `val_fgdata` expanded using SurvSplit ", nrow(val_fgdata), "x", ncol(val_fgdata))     
        
         } # !is.null(val_data)) 
@@ -52,10 +55,14 @@ if (mod_tt_data  && ntvarsx == 2) {          # Split train_data for models with 
   message("(Expanded) Data for models with tt terms")
   message("Split data for models with tt vars")  
   csrvx      <- paste0("Surv(", tv_tnms[1], ',', tv_tnms[2],") ~.")    # 'Surv(time, status)'
-  esrvx      <- expression(parse( text= csrvx))
-  train_data <- survSplit(as.formula(esrvx), 
+  # esrvx      <- expression(parse( text= csrvx))
+  cut_points <- seq(0, max(train_data[[tv_tnms[1]]]), by = mod_tt_split_length)  # Define 'some_interval' appropriately
+  train_data <- survSplit(as.formula(csrvx), 
                             data = train_data,                     
                             cut = cut_points)
+  tt_nm <- paste0(tv_tnms[1],"_tt")
+  train_data[[tt_nm]] <- train_data[[tv_tnms[1]]]
+  #!! val_data
 }  # mod_tt_data ...   Data with tt vars
 
 

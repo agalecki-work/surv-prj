@@ -101,14 +101,14 @@ prj_Info <- list(
    script_name      = "200accord_olink_analytical_dataset040323",  # R script (this file) 
    dfin_base        = datain_basename,                             # External file with dataset (without extension)
    dfin_ext         = datain_extension,                            
-   dfnms_all        = "accord",                                    # Data frame names created by this script
+   dfnms_all        = "accord",                                   # Data frame names created by this script
    tvar_Info        = tvar_Info                                   # dv_nick, tnms, tlabels, slevels, slabels
 )
 
 
 
 
-# Prepare `keep_cvars` vector (include weight, filter vars, CCH_vars if any)
+# Prepare `keep_cvars` vector (include id, weight, filter vars, CCH_vars if any. DO NOT include time variables)
 nx        <- 21
 BM_cvars  <- paste("BM",1:nx, sep="")
 BMQ_cvars <- paste("BMQ",1:nx, sep="")
@@ -122,7 +122,6 @@ dfvars_in   <- unique(c("MASKID", tvar_Info$tnms, keep_cxvars))
 
 # `work_data  
 dfin_Info <- list(
-  ####### name     ="accord",
   varsin   = dfvars_in,
   cfilter  = character(0),                        # Filter expression (by default all observations included) 
   cfilter_comment  = "All data used",

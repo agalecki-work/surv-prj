@@ -28,10 +28,10 @@ message("======>  210accord-fit-coxph.R  Starts" ) # This file
 # Auxiliary objects created for later use
 
 train_data <- work_data %>% filter(initSplit == 1)
-message("======> `train_data` : ", nrow(train_data), "x" , ncol(train_data))
+message("--- `train_data` : ", nrow(train_data), "x" , ncol(train_data))
 
 val_data <- work_data %>% filter(initSplit == 0)
-message("======> `val_data` : ", nrow(val_data), "x" ,ncol(val_data))
+message("--- `val_data` : ", nrow(val_data), "x" ,ncol(val_data))
 
 
 BM_vars <- paste("BM", 1:21, sep = "")
@@ -43,7 +43,7 @@ ns_df3 <- sapply(nsdf3_vars, FUN= function(cx){
   attr(splinex, "knots")
 })  # matrix with spline knots for selected vars,  df=3. Colnames correspond to var names
 
-#---- Create `cxterms_mtx`
+#---- Create `cxterms` character vector/mtx 
 #
 
 nx <- 21   # Number of coxph models in `cxterms_mtx`
@@ -52,35 +52,43 @@ nb <- 21   # Number of biomarkers
 
 model_nr <- tibble(nb = 1:nb)
 
-common_cxterms <- c(AGE      = "AGE", 
+common_cxterms <- c(
+    #               AGE      = "AGE", 
                    AGE_ns3  = "ns(AGE , knots = ns_df3[,'AGE'])",
-                   BASE_UCR = "BASE_UACR"
+                   BASE_UCR = "BASE_UACR",
+                   AGE_tt  = "AGE:{tt}"
+                   # strtm   = "strata(strtm)",
+                   # offset  = "offset(AGE/10)"
                    )
 common_cxterms_mtx <- matrix(rep(common_cxterms, times =nx), nrow=nx, byrow = TRUE)              
 colnames(common_cxterms_mtx) <- names(common_cxterms)
 rownames(common_cxterms_mtx) <- paste("M", 1:nx, sep="")
-common_cxterms_mtx[1, "AGE"] <- ""
-print(head(common_cxterms_mtx))  
+
+
+## print(head(common_cxterms_mtx))  
 # 
 
 # Vector with sequence of cterms:   ----ns(BM#   , knots = ns_df3[,'BM#'])
 seq_BMns3 <- model_nr %>% str_glue_data("ns(BM{nb}, knots = ns_df3[,'BM{nb}'])")
-  
-cxterms_mtx <- cbind(common_cxterms_mtx, seq_BMns3) 
+message("---- Initial version of `cxterms` matrix/vector defined by the user")
+
+cxterms <- cbind(common_cxterms_mtx, seq_BMns3) 
+
+print(head(cxterms))
 
 
 
-# cxterms_mtx2 <- rep(c("BM1:{tt}"), 21)
 
-
-message("====> coxph_Info ")
+message("----> coxph_Info ")
 coxph_Info <- list(
   wght           = "CCH_Self",       # ... CCH_Self,  CCH_SelfPrentice, CCH_BorganI
   id             = "MASKID",
-  cxterms_mtx    = cxterms_mtx,
-  tt_data        = FALSE,         # Time 
-  tt_split_length  = 0.1          # 0.1, 0.01 Length of tt_split_interval used to create tt expanded data
+  cxterms        = cxterms,          # Matrixor vector with cxterms
+  skip_tt        = FALSE,             # Time split into small intervals
+  tt_split_length  = 0.1             # 0.1, 0.01 Length of tt_split_interval used to create tt expanded data
 )
+
+print(coxph_Info)
 
 #==== source
 srcf <- "./src/11-unpack-data_Info.R"
@@ -93,9 +101,9 @@ srcf <- "./src/12-unpack-coxph_Info.R"
 message("=====> Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")
-print(mod_tt_split_length)
+#print(mod_tt_split_length)
 
-print(head(mod_cxterms_mtx))
+#print(head(mod_cxterms_mtx))
 
 
 srcf <- "./src/14-create_fgdata.R"
@@ -149,7 +157,7 @@ save(list = keep_objects, file=Rdata_nm)
 # Cleanup (No changes below) 
 ls_objects <- ls()
 rm_objects  <- c(setdiff(ls_objects, keep_objects), "ls_objects")
-rm(list = rm_objects)
+#rm(list = rm_objects)
 rm(rm_objects)
 
 
