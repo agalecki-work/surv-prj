@@ -1,6 +1,5 @@
 # source("220accord-fit-coxph.R") # This file
 
-
 require(tidymodels)
 require(stringr)
 require(glue)
@@ -14,6 +13,8 @@ message("====>********* Source ` ", srcf, "`: Starts")
 source(srcf) 
 print(ls())
 
+message("======>  220accord-fit-coxph.R  Starts" ) # This file
+
 
 #print(data_Info)
 srcf <- "./R/zzz_Rfuns.R"
@@ -21,7 +22,6 @@ message("====> Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")
 
-message("======>  220accord-fit-coxph.R  Starts" ) # This file
 
 
 srcf <- "205-create-aux-objects.R"
@@ -40,12 +40,12 @@ message("----> coxph_Info ")
 coxph_Info <- list(
   wght           = "CCH_Self",       # ... CCH_Self,  CCH_SelfPrentice, CCH_BorganI
   id             = "MASKID",
-  cxterms        = cxterms,          # Matrixor vector with cxterms
-  skip_tt        = FALSE,             # Time split into small intervals
+  cxterms        = cxterms1,         # Matrix or vector with cxterms
+  skip_tt        = FALSE,             # Ignore tt terms, if any
   tt_split_length  = 0.1             # 0.1, 0.01 Length of tt_split_interval used to create tt expanded data
 )
 
-print(coxph_Info)
+#print(coxph_Info)
 
 
 #==== source
@@ -63,12 +63,13 @@ message("-- Source ` ", srcf ,"`: Ends")
 
 #print(head(mod_cxterms_mtx))
 
+
 srcf <- "./src/13-process-cxterms.R"
 message("=====> Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ends")
 
-
+#stop("xyz")
 
 srcf <- "./src/14-create_fgdata.R"
 message("=====> Source ` ", srcf, "`: Starts")

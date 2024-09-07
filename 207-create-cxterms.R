@@ -30,10 +30,14 @@ rownames(common_cxterms_mtx) <- paste("M", 1:nx, sep="")
 seq_BMns3 <- model_nr %>% str_glue_data("ns(BM{nb}, knots = ns_df3[,'BM{nb}'])")
 message("---- Initial version of `cxterms` matrix/vector defined by the user")
 
-cxterms <- cbind(common_cxterms_mtx, seq_BMns3)  # matrix with named rows and columns
+#--- 
 
-cxterms <- c(AGE="AGE", AGE_tt = "AGE:{tt}", AGE ="AGE") # vector with named elements  
+cxterms1 <- cbind(common_cxterms_mtx, seq_BMns3)  # matrix with named rows and columns
 
-print(head(cxterms))
+cxterms2 <- c(AGE = "AGE", FEMALE="FEMALE", AGE_tt = "AGE:{tt}", AGE ="AGE") # vector with named elements  
+
+
+
+
 
 

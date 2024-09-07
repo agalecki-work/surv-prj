@@ -91,7 +91,7 @@ tvar6 <- list(
     slabels = c("0-censored", "1-Secondary event", "2-Death before secondary outcome"))
    
 #   Select one tvar list !!!
-tvar_Info <- tvar5 # 
+tvar_Info <- tvar2 # 
 
 
 #---- Mandatory list

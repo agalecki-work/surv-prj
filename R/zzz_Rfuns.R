@@ -1,6 +1,7 @@
 funNms <- c(
   "SurvSplit1_truncate",
   "SurvSplit2_truncate",
+  "count_columns_per_term",
   "create_cxterms_mtx", 
   "create_foldid_vars",
   "create_srs_folds",

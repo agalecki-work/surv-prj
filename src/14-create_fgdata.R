@@ -20,7 +20,7 @@
       } # !is.null(val_data))
  
  ## ntvarsx  >= 3 `train_fgdata` and `val_fgdata` will be split (over-written)
-    if (mod_tt_data ) {  ## tt split in the data
+    if (mod_tt_data) {  ## tt split in the data
       cut_points <- seq(0, max(train_fgdata$fgstop), by = mod_tt_split_length)  # Define 'some_interval' appropriately
       train_fgdata <- survSplit(Surv(fgstart, fgstop, fgstatus) ~ ., 
                               data = train_fgdata,                     
