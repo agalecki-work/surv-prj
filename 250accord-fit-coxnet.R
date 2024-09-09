@@ -5,6 +5,7 @@ require(tidymodels)
 require(stringr)
 require(glue)
 require(splines)
+require(glmnet)
 
 rm(list= ls())
 
@@ -21,7 +22,7 @@ message("====> Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")
 
-message("======>  210accord-fit-coxph.R  Starts" ) # This file
+message("======>  250accord-fit-coxph.R  Starts" ) # This file
 
 
 srcf <- "205-create-aux-objects.R"
@@ -35,14 +36,16 @@ message("====> Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ends")
 
+cxterms <- cxterms2  # Vector
+
 message("----> coxnet_Info ")
 coxnet_Info <- list(
   wght           = "CCH_Self",       # ... CCH_Self,  CCH_SelfPrentice, CCH_BorganI
   id             = "MASKID",
-  cxterms        = cxterms,          # Matrixor vector with cxterms
+  cxterms        = cxterms,          # vector with cxterms
   skip_tt        = TRUE,             # Time split into small intervals
-  pen_xterms     = rep(1, times= ncol(cxterms)),
-  alpha          = 1,  
+  pen_xterms     = rep(1, times=length(cxterms)),
+  # alphas          = c(0.5, 1),     # Stored in attr("alphas" "alpha_pos"
   tt_split_length  = 0.1             # 0.1, 0.01 Length of tt_split_interval used to create tt expanded data
 )
 
@@ -72,7 +75,7 @@ message("-- Source ` ", srcf ,"`: Ended")
 
 
 #==== source
-srcf <- "./src/15-create_coxnet0_fit.R"
+srcf <- "./src/15-fit_coxnet0.R"
 message("-- Source ` ", srcf, "`: Starts")
 source(srcf) 
 message("-- Source ` ", srcf ,"`: Ended")

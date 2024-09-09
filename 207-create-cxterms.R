@@ -35,6 +35,8 @@ message("---- Initial version of `cxterms` matrix/vector defined by the user")
 cxterms1 <- cbind(common_cxterms_mtx, seq_BMns3)  # matrix with named rows and columns
 
 cxterms2 <- c(AGE = "AGE", FEMALE="FEMALE", AGE_tt = "AGE:{tt}", AGE ="AGE") # vector with named elements  
+attr(cxterms2, "alphas") <- c(0.5,1)
+#attr(cxterms2, "alpha_pos") <- 1 # position of selected alpha
 
 
 

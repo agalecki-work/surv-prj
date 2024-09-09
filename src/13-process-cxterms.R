@@ -4,7 +4,15 @@ message("-- ntvarsx =", ntvarsx)
 message("-- skip_tt = ", mod_skip_tt)
 message("-- is.vector(mod_cxterms) = ", is.vector(mod_cxterms))
 
-# Detect {tt} columns in mod_cxterms_mtx
+# Extract attributes from `mod_cxterms`
+
+mod_alphas <- if (is.null(attr(mod_cxterms, "alphas"))) 1 else attr(mod_cxterms, "alphas")
+
+mod_alpha_pos <- if (is.null(attr(mod_cxterms, "alpha_pos"))) NULL  else attr(mod_cxterms, "alpha_pos")
+
+if (length(mod_alpha_pos) && mod_alpha_pos <= length(mod_alphas)) mod_alphas <- mod_alphas[mod_alpha_pos]
+
+# Assign names to `mod_xterms` object
 if (is.vector(mod_cxterms) && is.null(names(mod_cxterms))) names(mod_cxterms) <- paste0("term", 1:length(mod_cxterms), sep="")
 if (is.matrix(mod_cxterms) && is.null(rownames(mod_cxterms))) rownames(mod_cxterms) <- paste0("M", 1:nrow(mod_cxterms), sep="")
 if (is.matrix(mod_cxterms) && is.null(colnames(mod_cxterms))) colnames(mod_cxterms) <- paste0("col", 1:ncol(mod_cxterms), sep="")
@@ -34,8 +42,7 @@ if (mod_skip_tt) {  # IF TRUE skip tt columns
      if (is.vector(mod_cxterms_mtx)){
          tmp <- matrix(mod_cxterms_mtx, nrow =1, byrow= TRUE)
          rownames(tmp) <- "M0"
-         vec_nms <- names(mod_cxterms_mtx)
-         colnames(tmp) <- vec_names
+         colnames(tmp) <- names(mod_cxterms_mtx)
          mod_cxterms_mtx <- tmp
       }
      mod_tt_data <- FALSE # Because tt collumns in `mod_cxterms_mtx` skipped

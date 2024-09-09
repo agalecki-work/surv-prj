@@ -7,6 +7,7 @@ funNms <- c(
   "create_srs_folds",
   "create_cch_folds", 
   "list_added_components",
+  "prepare_plotcva_data",
   "create_cch_weights",
   "create_spline_basis",
   "expand_data_finegray",
