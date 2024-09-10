@@ -11,7 +11,8 @@ funNms <- c(
   "create_cch_weights",
   "create_spline_basis",
   "expand_data_finegray",
-  "split_data_intervals"
+  "split_data_intervals",
+  "create_cxterms_plus"
 )
 
 funNmsR  <- paste0(funNms,".R") 
